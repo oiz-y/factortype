@@ -3,7 +3,7 @@ import re
 def factor_poly():
     factor_type_dict = {}
     count = 0
-    for p in range(10000):
+    for p in range(20000):
         if not is_prime(p):
             continue
         R.<x> = PolynomialRing(GF(p))
@@ -30,7 +30,7 @@ def get_factor_data(factors, p):
 
 def print_per(factor_type_dict, count):
     for key, value in factor_type_dict.items():
-        print(f'タイプ: {key} 割合: {float(value / count)}')
+        print(f'タイプ: {key}\n割合: {float(value / count)}\n')
 
 if __name__ == '__main__':
     factor_poly()
