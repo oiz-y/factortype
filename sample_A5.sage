@@ -1,29 +1,48 @@
 import re
+import random
 
 def factor_poly():
     file = open('output.txt', 'w')
     count = 0
-    a = 15
+    a = 0
+#    conj_type = [
+#        '1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1',
+#        '1,11,11',
+#        '1,1,1,1,1,1,1,2,2,2,2,2,2,2,2',
+#        '1,1,1,2,2,4,4,4,4',
+#        '1,2,4,8,8',
+#        '1,1,7,7,7',
+#        '2,7,14',
+#        '1,1,1,1,1,3,3,3,3,3,3',
+#        '1,1,1,5,5,5,5',
+#        '3,5,15',
+#        '1,2,2,3,3,6,6',
+#        '23'
+#    ]
     conj_type = [
         '1,1,1,1,1',
         '1,2,2',
         '1,1,3',
         '5'
     ]
-    while a < 18:
-        print(a)
+    while a < 5:
+        coef = random.sample(range(-100000000, 100000000), 23)
+        coef = [14 + a, 20, 0, 0, 0, 1]
         factor_type_dict = {}
-        for p in range(5000):
+        for p in range(1000):
             if not is_prime(p):
                 continue
             R.<x> = PolynomialRing(GF(p))
-            f = x^5 + 20 * x + a
+            f = 0
+            for i in range(5):
+                f += coef[i] * x^i
+            f += x^5
             factor_dict = get_factor_data(list(f.factor()), p)
             if not factor_dict:
                 continue
             factor_type = ','.join([str(t[0]) for t in list(factor_dict.values())])
             if factor_type not in conj_type:
-                file.write(str(f) + ' break ' + factor_type + '\n')
+                file.write(f'{str(coef)} prime:{p} decomposition type:{factor_type}\n')
                 break
             if factor_type in factor_type_dict:
                 factor_type_dict[factor_type] += 1
@@ -31,14 +50,11 @@ def factor_poly():
                 factor_type_dict[factor_type] = 1
             count += 1
         else:
-            print(str(f))
-            print_per(factor_type_dict, count)
-            file.write(str(f) + '\n')
+            file.write(str(coef) + '\n')
             for k, v in factor_type_dict.items():
-                file.write(f'  タイプ:{k} 割合:{str(float(v / count))}\n')
+                file.write(f'  decomposition type:{k} ratio:{str(float(v / count))}\n')
             file.write('\n')
         a += 1
-        #break
     file.close()
 
 def get_factor_data(factors, p):
@@ -52,6 +68,7 @@ def get_factor_data(factors, p):
         else:
             factor_dict[str(f[0])] = (int(pol_deg), f[1])
     return factor_dict
+
 
 def print_per(factor_type_dict, count):
     for key, value in factor_type_dict.items():
