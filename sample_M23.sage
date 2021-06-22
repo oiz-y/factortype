@@ -1,9 +1,10 @@
 import re
+import random
 
 def factor_poly():
     file = open('output.txt', 'w')
-    count = 0
-    a = 15
+    a = 0
+    deg = 23
     conj_type = [
         '1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1',
         '1,11,11',
@@ -18,20 +19,24 @@ def factor_poly():
         '1,2,2,3,3,6,6',
         '23'
     ]
-    while a < 10000:
-        # print(a)
+    while a < 1000000:
+        count = 0
+        coef = random.sample(range(-100000000, 100000000), deg)
         factor_type_dict = {}
-        for p in range(5000):
+        for p in range(1000):
             if not is_prime(p):
                 continue
             R.<x> = PolynomialRing(GF(p))
-            f = x^23 + x^20 + x^19 + x^18 + x^17 + x^16 + x^15 + x^14 + a
+            f = 0
+            for i in range(deg):
+                f += coef[i] * x^i
+            f += x^deg
             factor_dict = get_factor_data(list(f.factor()), p)
             if not factor_dict:
                 continue
             factor_type = ','.join([str(t[0]) for t in list(factor_dict.values())])
             if factor_type not in conj_type:
-                file.write(str(f) + ' break ' + factor_type + '\n')
+                file.write(f'{str(coef)} prime:{p} decomposition type:{factor_type}\n')
                 break
             if factor_type in factor_type_dict:
                 factor_type_dict[factor_type] += 1
@@ -39,14 +44,11 @@ def factor_poly():
                 factor_type_dict[factor_type] = 1
             count += 1
         else:
-            # print(str(f))
-            # print_per(factor_type_dict, count)
-            file.write(str(f) + '\n')
+            file.write(str(coef) + '\n')
             for k, v in factor_type_dict.items():
-                file.write(f'  タイプ:{k} 割合:{str(float(v / count))}\n')
+                file.write(f'  decomposition type:{k} ratio:{str(float(v / count))}\n')
             file.write('\n')
         a += 1
-        #break
     file.close()
 
 def get_factor_data(factors, p):
@@ -60,11 +62,6 @@ def get_factor_data(factors, p):
         else:
             factor_dict[str(f[0])] = (int(pol_deg), f[1])
     return factor_dict
-
-
-def print_per(factor_type_dict, count):
-    for key, value in factor_type_dict.items():
-        print(f'タイプ: {key}\n割合: {float(value / count)}\n')
 
 if __name__ == '__main__':
     factor_poly()
